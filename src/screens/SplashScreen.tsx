@@ -1,20 +1,17 @@
 import {Alert, Image, Text, View} from 'react-native';
 import React, {useEffect} from 'react';
-import {navigate, resetAndNavigate} from '../utils/NavigationUtils';
+import {resetAndNavigate} from '../utils/NavigationUtils';
 import {getAccessToken, getRefreshToken} from '../services/storage';
 import {jwtDecode} from 'jwt-decode';
 import {refresh_tokens} from '../services/requests/auth';
-import ThirdBrainIcon from '../assets/Icons/ThirdBrainIcon';
 import Logo from '../assets/svg/Logo.svg';
 import LinearGradient from 'react-native-linear-gradient';
+import {toastError, toastSucess} from '../utils/toast';
 
 interface DecodedToken {
   exp: number;
 }
 const SplashScreen = () => {
-  // const navigateHomeScreen = () => {
-  //   navigate('LoginScreen');
-  // };
   const tokenCheck = async () => {
     const accessToken = getAccessToken();
     const refreshToken = getRefreshToken();
@@ -25,17 +22,22 @@ const SplashScreen = () => {
       const currentTime = Date.now() / 1000;
       if (decodedRefreshToken?.exp < currentTime) {
         resetAndNavigate('LoginScreen');
-        Alert.alert('Session Expired ,Please login again');
+        toastError('Session Expired, Please login again');
         return;
       }
 
       if (decodedAccessToken?.exp < currentTime) {
-        const refreshed = await refresh_tokens();
+        try {
+          const refreshed = await refresh_tokens();
 
-        console.log('token refreshed __________');
-        if (!refreshed) {
-          Alert.alert('There was an error');
-          return;
+          console.log('token refreshed __________');
+          if (!refreshed) {
+            toastError('There was an error refreshing your session');
+            return;
+          }
+          toastSucess('Session refreshed successfully');
+        } catch (error: any) {
+          toastError('Error refreshing session: ' + error.message);
         }
       }
       resetAndNavigate('HomeScreen');
@@ -47,6 +49,7 @@ const SplashScreen = () => {
   useEffect(() => {
     const timerId = setTimeout(() => {
       tokenCheck();
+      toastError('weeo', 'welcome');
     }, 4000);
 
     return () => clearTimeout(timerId);
@@ -61,7 +64,6 @@ const SplashScreen = () => {
 
       <Image
         source={require('../assets/images/brainwork.png')}
-        // alt="brainwork"
         width={100}
         height={200}
         className="mt-20 w-full "

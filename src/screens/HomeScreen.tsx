@@ -17,13 +17,17 @@ import BellIcon from '../assets/Icons/BellIcon.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import {navigate} from '../utils/NavigationUtils';
 import {ProfileModal} from '../components/models/ProfileModel';
+import {toastError, toastSucess} from '../utils/toast';
 
 const HomeScreen = () => {
   const [isVisiable, setisVisiable] = useState(false);
   const logoutMutation = useMutation({
     mutationFn: logout,
+    onSuccess: () => {
+      toastSucess('User logOut sucessfully..!');
+    },
     onError: error => {
-      console.error('logout error', error);
+      toastError('logout error', error.message);
     },
   });
   const handleLogOut = () => {
@@ -155,7 +159,7 @@ const HomeScreen = () => {
       </TouchableOpacity> */}
       </ScrollView>
 
-      <View className="absolute bottom-0 left-0 right-0 bg-gray-900 p-4 shadow-lg border-t border-gray-200 flex-row justify-around gap-x-28">
+      {/* <View className="absolute bottom-0 left-0 right-0 bg-gray-900 p-4 shadow-lg border-t border-gray-200 flex-row justify-around gap-x-28">
         <TouchableOpacity className="justify-center items-center">
           <View>
             <HomeIcon width={25} height={25} />
@@ -183,7 +187,7 @@ const HomeScreen = () => {
           </View>
           <Text className="font-bold text-sm text-primarymain">Log Out</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </>
   );
 };

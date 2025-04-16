@@ -18,6 +18,7 @@ import TermAndPrivacy from '../components/gobal/TermAndPrivacy';
 import {navigate, resetAndNavigate} from '../utils/NavigationUtils';
 import {useMutation} from '@tanstack/react-query';
 import {emailpasswordLogin} from '../services/requests/auth';
+import {toastError, toastSucess} from '../utils/toast';
 
 const LoginScreen = () => {
   const [showHide, setshowHide] = useState(true);
@@ -26,13 +27,16 @@ const LoginScreen = () => {
   const loginMutation = useMutation({
     mutationFn: emailpasswordLogin,
     onSuccess: () => {
+      toastSucess('Login sucessfully');
       resetAndNavigate('HomeScreen');
     },
     onError: (error: any) => {
       if (error?.response) {
-        console.error('Login failed:', error?.response?.data);
+        // console.error('Login failed:', error?.response?.data);
+        toastError('Login failed:', error?.response?.data);
       } else {
-        console.error('Unknown error', error);
+        toastError(error.message);
+        // console.error('Unknown error', error);
       }
     },
   });
@@ -40,6 +44,7 @@ const LoginScreen = () => {
   const handleLogin = () => {
     try {
       loginMutation.mutate({email, password});
+
       // resetAndNavigate('HomeScreen');
     } catch (error) {
       console.error('email-password login failed', error);

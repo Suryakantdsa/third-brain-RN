@@ -30,7 +30,9 @@ export const signupUser = async ({
     resetAndNavigate('LoginScreen');
     Alert.prompt('User signup sucessfully');
     return data;
-  } catch (error) {}
+  } catch (error: any) {
+    throw new Error(error?.response?.data?.message || 'user signup failed');
+  }
 };
 
 export const emailpasswordLogin = async ({
@@ -40,14 +42,20 @@ export const emailpasswordLogin = async ({
   email: string;
   password: string;
 }) => {
-  const {data} = (await apiClient.post('/email-password-login', {
-    email: email,
-    password: password,
-  })) as any;
-  setAccessToken(data.accessToken);
-  setRefreshToken(data.refreshToken);
-  setuser(data?.user);
-  return data.user;
+  try {
+    const {data} = await apiClient.post('/email-password-login', {
+      email,
+      password,
+    });
+
+    setAccessToken(data.accessToken);
+    setRefreshToken(data.refreshToken);
+    setuser(data.user);
+
+    return data.user;
+  } catch (error: any) {
+    throw new Error(error?.response?.data?.message || 'Invalid credentials');
+  }
 };
 
 export const logout = async () => {
@@ -74,9 +82,9 @@ export const refresh_tokens = async (): Promise<boolean> => {
     } else {
       throw new Error('invalid refreshtoken');
     }
-  } catch (error) {
-    console.error(`token refresh faild:`, error);
+  } catch (error: any) {
+    // toastError(error?.response?.data?.message || 'token refresh failed');
     logout();
-    return false;
+    throw new Error(error?.response?.data?.message || 'Invalid credentials');
   }
 };
